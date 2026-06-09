@@ -24,7 +24,6 @@ wheels/
 *.pth
 *.pkl
 *.npy
-*.sh
 *.log
 
 # ipython/jupyter notebooks
@@ -47,4 +46,6 @@ _darcs
 !/datasets/*.*
 /projects/*/datasets
 /detectron2
+eval.sh
+train.sh
 
