@@ -24,6 +24,8 @@ wheels/
 *.pth
 *.pkl
 *.npy
+*.sh
+*.log
 
 # ipython/jupyter notebooks
 **/.ipynb_checkpoints/
