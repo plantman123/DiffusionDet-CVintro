@@ -1,0 +1,19 @@
+_BASE_: "Base-DiffusionDet.yaml"
+MODEL:
+  WEIGHTS: "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
+  RESNETS:
+    DEPTH: 50
+    STRIDE_IN_1X1: False
+  DiffusionDet:
+    NUM_PROPOSALS: 500
+    NUM_CLASSES: 2
+DATASETS:
+  TRAIN: ("rsna_train",)
+  TEST:  ("rsna_val",)
+SOLVER:
+  STEPS: (350000, 420000)
+  MAX_ITER: 450000
+INPUT:
+  CROP:
+    ENABLED: True
+  FORMAT: "RGB"
