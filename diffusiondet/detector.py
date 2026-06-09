@@ -334,6 +334,89 @@ class DiffusionDet(nn.Module):
                     loss_dict[k] *= weight_dict[k]
             return loss_dict
 
+    @torch.no_grad()
+    def ddim_sample_visualization(self, batched_inputs, backbone_feats, images_whwh, images):
+        """
+        记录每个 timestep 的中间预测结果，
+        Returns:
+            list[dict]: 每个 timestep 的预测数据，包含:
+                - time: 当前 timestep
+                - boxes: 预测框
+                - scores: 每个框的最高分数
+                - labels: 每个框的类别标签
+                - noisy_boxes: 当前带噪声的输入框 (xyxy, 绝对坐标)
+        """
+        batch = images_whwh.shape[0]
+        shape = (batch, self.num_proposals, 4)
+        total_timesteps = self.num_timesteps
+        sampling_timesteps = self.sampling_timesteps
+        eta = self.ddim_sampling_eta
+
+        # [-1, 0, 1, 2, ..., T-1] when sampling_timesteps == total_timesteps
+        times = torch.linspace(-1, total_timesteps - 1, steps=sampling_timesteps + 1)
+        times = list(reversed(times.int().tolist()))
+        time_pairs = list(zip(times[:-1], times[1:]))
+
+        img = torch.randn(shape, device=self.device)
+
+        steps_data = []
+        x_start = None
+
+        for time, time_next in time_pairs:
+            time_cond = torch.full((batch,), time, device=self.device, dtype=torch.long)
+            self_cond = x_start if self.self_condition else None
+
+            preds, outputs_class, outputs_coord = self.model_predictions(
+                backbone_feats, images_whwh, img, time_cond, self_cond, clip_x_start=True
+            )
+            pred_noise, x_start = preds.pred_noise, preds.pred_x_start
+
+            # 将 x_start 从 scaled cxcywh 转换为图像上的绝对 xyxy 坐标
+            x_start_boxes = torch.clamp(x_start, min=-1 * self.scale, max=self.scale)
+            x_start_boxes = ((x_start_boxes / self.scale) + 1) / 2  # 归一化 cxcywh [0,1]
+            x_start_boxes = box_cxcywh_to_xyxy(x_start_boxes)       # 归一化 xyxy [0,1]
+            x_start_boxes = x_start_boxes * images_whwh[:, None, :]  # 绝对 xyxy
+
+            # 将当前噪声框 img 也转换为图像上的绝对 xyxy 坐标（用于可视化）
+            noisy_boxes = torch.clamp(img, min=-1 * self.scale, max=self.scale)
+            noisy_boxes = ((noisy_boxes / self.scale) + 1) / 2
+            noisy_boxes = box_cxcywh_to_xyxy(noisy_boxes)
+            noisy_boxes = noisy_boxes * images_whwh[:, None, :]
+
+            # 获取分类分数（取第一张图）
+            box_cls = outputs_class[-1][0]  # (num_proposals, num_classes)
+            scores = torch.sigmoid(box_cls)
+            max_scores, labels = scores.max(dim=-1)
+
+            # 收集当前步骤的数据（取第一张图）
+            step_data = {
+                'time': time,
+                'time_next': time_next,
+                'boxes': x_start_boxes[0].cpu(),
+                'scores': max_scores.cpu(),
+                'labels': labels.cpu(),
+                'noisy_boxes': noisy_boxes[0].cpu(),
+            }
+            steps_data.append(step_data)
+
+            if time_next < 0:
+                img = x_start
+                continue
+
+            alpha = self.alphas_cumprod[time]
+            alpha_next = self.alphas_cumprod[time_next]
+
+            sigma = eta * ((1 - alpha / alpha_next) * (1 - alpha_next) / (1 - alpha)).sqrt()
+            c = (1 - alpha_next - sigma ** 2).sqrt()
+
+            noise = torch.randn_like(img)
+
+            img = x_start * alpha_next.sqrt() + \
+                  c * pred_noise + \
+                  sigma * noise
+
+        return steps_data
+
     def prepare_diffusion_repeat(self, gt_boxes):
         """
         :param gt_boxes: (cx, cy, w, h), normalized
