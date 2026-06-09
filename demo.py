@@ -20,7 +20,7 @@ from diffusiondet.util.model_ema import add_model_ema_configs, may_build_model_e
     apply_model_ema_and_restore, EMADetectionCheckpointer
 
 # constants
-WINDOW_NAME = "COCO detections"
+WINDOW_NAME = "RSNA detections"
 
 
 def setup_cfg(args):
