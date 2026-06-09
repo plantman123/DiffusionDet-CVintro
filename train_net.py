@@ -36,6 +36,9 @@ from diffusiondet import DiffusionDetDatasetMapper, add_diffusiondet_config, Dif
 from diffusiondet.util.model_ema import add_model_ema_configs, may_build_model_ema, may_get_ema_checkpointer, EMAHook, \
     apply_model_ema_and_restore, EMADetectionCheckpointer
 
+from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.data.datasets import load_coco_json
+
 
 class Trainer(DefaultTrainer):
     """ Extension of the Trainer class adapted to DiffusionDet. """
@@ -244,6 +247,37 @@ class Trainer(DefaultTrainer):
             # run writers in the end, so that evaluation metrics are written
             ret.append(hooks.PeriodicWriter(self.build_writers(), period=20))
         return ret
+    
+
+def register_rsna_dataset():
+    """注册 RSNA 肺炎检测数据集到 Detectron2 的 DatasetCatalog"""
+    data_root = "./dataset/RSNA"
+    
+    # 注册训练集
+    DatasetCatalog.register("rsna_train", lambda: load_coco_json(
+        f"{data_root}/annotations/train_data.json",
+        f"{data_root}/train2017",
+        "rsna_train"
+    ))
+    MetadataCatalog.get("rsna_train").set(
+        thing_classes=["pneumonia"],
+        evaluator_type="coco",
+        json_file=f"{data_root}/annotations/train_data.json",
+        image_root=f"{data_root}/train2017"
+    )
+    
+    # 注册验证集
+    DatasetCatalog.register("rsna_val", lambda: load_coco_json(
+        f"{data_root}/annotations/val_data.json",
+        f"{data_root}/val2017",
+        "rsna_val"
+    ))
+    MetadataCatalog.get("rsna_val").set(
+        thing_classes=["pneumonia"],
+        evaluator_type="coco",
+        json_file=f"{data_root}/annotations/val_data.json",
+        image_root=f"{data_root}/val2017"
+    )
 
 
 def setup(args):
@@ -253,6 +287,9 @@ def setup(args):
     cfg = get_cfg()
     add_diffusiondet_config(cfg)
     add_model_ema_configs(cfg)
+
+    register_rsna_dataset()
+    
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     cfg.freeze()
@@ -295,3 +332,4 @@ if __name__ == "__main__":
         dist_url=args.dist_url,
         args=(args,),
     )
+
