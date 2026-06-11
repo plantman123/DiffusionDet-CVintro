@@ -1,0 +1,15 @@
+experiments = [
+    ('MAXITER_2500_BATCH_32_res101', 'DiffusionDet', 'Res101', 8e-5,  32,  2500, 'sRSNA'),
+    ('MAXITER_2500_BATCH_48_res50',  'DiffusionDet', 'Res50',  5e-5,  32,  2500, 'sRSNA'),
+    ('MAXITER_5000_BATCH_64_res50',  'DiffusionDet', 'Res50',  8e-5,  56,  5000, 'sRSNA'),
+    ('fasterrcnn_res50',             'FasterRCNN',   'Res50',  5e-3,  16,  5000, 'sRSNA'),
+    ('fasterrcnn_res101',            'FasterRCNN',   'Res101', 5e-3,  16,  5000, 'sRSNA'),
+    ('optres50',                     'DiffusionDet', 'Res50',  8e-5,  56,  8000, 'sRSNA'),
+    ('optres101',                    'DiffusionDet', 'Res101', 8e-5,  56,  8000, 'sRSNA'),
+    ('MAXITER_10000_BATCH_64_res50', 'DiffusionDet', 'Res50',  1.5e-4,64,  10000,'sRSNA'),
+    ('MAXITER_10000_BATCH_64_res101','DiffusionDet', 'Res101', 5e-5,  64,  10000,'sRSNA'),
+    ('lrsna_fasterrcnn_res50',       'FasterRCNN',   'Res50',  5e-3,  16,  6000, 'lRSNA'),
+    ('lrsna_fasterrcnn_res101',      'FasterRCNN',   'Res101', 5e-3,  16,  6000, 'lRSNA'),
+    ('lrsna_optres50',               'DiffusionDet', 'Res50',  8e-5,  32,  3000, 'lRSNA'),
+    ('lrsna_optres101',              'DiffusionDet', 'Res101', 8e-5,  32,  3000, 'lRSNA'),
+]
