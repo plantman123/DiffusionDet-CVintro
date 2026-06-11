@@ -249,10 +249,8 @@ class Trainer(DefaultTrainer):
         return ret
     
 
-def register_rsna_dataset():
+def register_rsna_dataset(data_root):
     """注册 RSNA 肺炎检测数据集到 Detectron2 的 DatasetCatalog"""
-    data_root = "./dataset/RSNA"
-    
     # 注册训练集
     DatasetCatalog.register("rsna_train", lambda: load_coco_json(
         f"{data_root}/annotations/train_data.json",
@@ -288,7 +286,7 @@ def setup(args):
     add_diffusiondet_config(cfg)
     add_model_ema_configs(cfg)
 
-    register_rsna_dataset()
+    register_rsna_dataset(args.dataroot)
     
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)

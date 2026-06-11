@@ -43,9 +43,7 @@ class FasterRCNNTrainer(DefaultTrainer):
         return ret
 
 
-def register_rsna_dataset():
-    data_root = "./dataset/RSNA"
-
+def register_rsna_dataset(data_root):
     for split, folder in [("rsna_train", "train2017"), ("rsna_val", "val2017")]:
         json_file = f"{data_root}/annotations/{split.replace('rsna_', '')}_data.json"
         image_root = f"{data_root}/{folder}"
@@ -66,7 +64,7 @@ def register_rsna_dataset():
 
 def setup(args):
     cfg = get_cfg()
-    register_rsna_dataset()
+    register_rsna_dataset(args.dataroot)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     cfg.freeze()
