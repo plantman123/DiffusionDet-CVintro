@@ -247,7 +247,7 @@ if __name__ == "__main__":
             os.makedirs(args.output, exist_ok=True)
             out_filename = os.path.join(args.output, os.path.basename(img_path))
             out_filename = os.path.splitext(out_filename)[0] + "_denoising.png"
-            fig.savefig(out_filename, dpi=150, bbox_inches='tight')
+            fig.savefig(out_filename, dpi=450, bbox_inches='tight')
             logger.info(f"  保存到: {out_filename}")
         else:
             matplotlib.use("TkAgg")
