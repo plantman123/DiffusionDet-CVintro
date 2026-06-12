@@ -48,4 +48,6 @@ _darcs
 /detectron2
 eval.sh
 train.sh
+trainl.sh
+predict_batch.sh
 
