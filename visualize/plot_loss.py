@@ -16,6 +16,7 @@ def load_metrics(folder):
     path = os.path.join(OUTPUT_DIR, folder, 'metrics.json')
     iterations, losses = [], []
     if not os.path.exists(path):
+        print(f'{folder} 不存在')
         return 0, np.array([]), np.array([])
     with open(path, 'r') as f:
         for line in f:
@@ -37,7 +38,7 @@ def smooth(values, weight=0.9):
 colors = plt.cm.tab10(np.linspace(0, 1, len(experiments)))
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 7))
-fig.suptitle('Training Total Loss (All Experiments)', fontsize=16, fontweight='bold')
+fig.suptitle('Training Total Loss ', fontsize=16, fontweight='bold')
 
 for idx, (folder, model, backbone, lr, batch, max_iter, dataset) in enumerate(experiments):
     success, iters, losses = load_metrics(folder)
@@ -62,7 +63,7 @@ ax1.set_title('Raw + EMA Smoothed (weight=0.9)', fontsize=13)
 ax2.set_title('EMA Smoothed (weight=0.95)', fontsize=13)
 
 plt.tight_layout()
-save_path = os.path.join(OUTPUT_DIR, 'loss_all_experiments.png')
+save_path = os.path.join("./visualize", 'loss_all_experiments.png')
 plt.savefig(save_path, dpi=150, bbox_inches='tight')
 print(f'已保存: {save_path}')
 plt.close()

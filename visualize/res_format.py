@@ -38,9 +38,13 @@ def extract_best_ap(folder):
 
 rows = []
 for folder, model, backbone, lr, batch, max_iter, dataset in experiments:
+    metrics_path = os.path.join(OUTPUT_DIR, folder, 'metrics.json')
+    if not os.path.exists(metrics_path):
+        print(f"[跳过] {folder}: metrics.json 文件不存在")
+        continue
     result = extract_best_ap(folder)
     if result is None:
-        print(f"[跳过] {folder}: metrics.json 不存在或无 AP 记录")
+        print(f"[跳过] {folder}: metrics.json 中无 bbox/AP 评估记录（训练可能尚未完成评估）")
         continue
     best_ap, ap_iter, best_ap50, ap50_iter = result
     rows.append({
@@ -51,23 +55,24 @@ for folder, model, backbone, lr, batch, max_iter, dataset in experiments:
         'LR': lr,
         'Batch': batch,
         'MaxIter': max_iter,
-        'Best AP': round(best_ap, 2),
-        'Best AP50': round(best_ap50, 2),
+        'mAP@0.5:0.95': round(best_ap, 2),
+        'mAP@50': round(best_ap50, 2),
     })
 
 df = pd.DataFrame(rows)
-df = df.sort_values('Best AP50', ascending=False).reset_index(drop=True)
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 200)
 pd.set_option('display.max_colwidth', 40)
 
-print("\n" + "=" * 120)
-print("  训练过程中最佳 AP / AP50 汇总")
-print("=" * 120)
-print(df.to_string(index=False))
-print("=" * 120)
+for ds_name, group in df.groupby('Dataset', sort=False):
+    group_sorted = group.sort_values('mAP@50', ascending=False).reset_index(drop=True)
+    print(f"\n{'=' * 45}")
+    print(f"  数据集: {ds_name}  —  mAP@0.5:0.95 / mAP@50 汇总")
+    print(f"{'=' * 45}")
+    print(group_sorted.to_string(index=False))
+    print(f"{'=' * 45}")
 
-# save_path = os.path.join(OUTPUT_DIR, 'best_ap_summary.csv')
-# df.to_csv(save_path, index=False)
-# print(f"\n已保存到: {save_path}")
+save_path = os.path.join("./visualize", 'ap_summary.csv')
+df_sorted = df.sort_values(['Dataset', 'mAP@50'], ascending=[True, False]).reset_index(drop=True)
+df_sorted.to_csv(save_path, index=False)
