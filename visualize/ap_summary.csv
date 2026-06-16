@@ -1,0 +1,14 @@
+Experiment,Model,Backbone,Dataset,LR,Batch,MaxIter,mAP@0.5:0.95,mAP@50
+lrsna_optres101,DiffusionDet,Res101,lRSNA,8e-05,32,3000,15.71,42.14
+lrsna_fasterrcnn_res101,FasterRCNN,Res101,lRSNA,0.005,16,6000,13.29,40.07
+lrsna_optres50,DiffusionDet,Res50,lRSNA,8e-05,32,3000,11.09,37.68
+lrsna_fasterrcnn_res50,FasterRCNN,Res50,lRSNA,0.005,16,6000,11.64,36.92
+fasterrcnn_res101,FasterRCNN,Res101,sRSNA,0.005,16,5000,16.05,48.2
+optres50,DiffusionDet,Res50,sRSNA,8e-05,56,8000,14.58,46.92
+fasterrcnn_res50,FasterRCNN,Res50,sRSNA,0.005,16,5000,14.97,46.15
+MAXITER_2500_BATCH_48_res50,DiffusionDet,Res50,sRSNA,5e-05,32,2500,14.42,44.63
+optres101,DiffusionDet,Res101,sRSNA,8e-05,56,8000,14.96,44.46
+MAXITER_2500_BATCH_32_res101,DiffusionDet,Res101,sRSNA,8e-05,32,2500,14.63,43.71
+MAXITER_5000_BATCH_64_res50,DiffusionDet,Res50,sRSNA,8e-05,56,5000,13.09,41.07
+MAXITER_10000_BATCH_64_res101,DiffusionDet,Res101,sRSNA,0.00015,64,10000,12.51,38.4912
+MAXITER_10000_BATCH_64_res50,DiffusionDet,Res50,sRSNA,0.00015,64,10000,12.0,38.13
